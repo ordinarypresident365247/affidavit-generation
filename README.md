@@ -1,3 +1,44 @@
+# Demo of Digitial Persona U.are.U 4500 Fingerprint Reader Web Solution
+
+# Installation Windows 10 and 11 (it might work on other Windows versions)
+1. Download Digital Persona Lite Client: https://crossmatch.hid.gl/lite-client/ and install to access the Fingerprint Reader from a browser e.g Chrome.
+
+2. Download the project and run/open index.html.
+
+# ZKTeco readers (like the ZK9500 or ZK8500R) use a completely different communication protocol and require their own browser service (usually called ZKBioOnline or the ZKTeco Web SDK).
+1. Download and install the ZKTeco Web Service/SDK.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

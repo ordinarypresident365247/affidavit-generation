@@ -1,31 +1,56 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { loginWithEmailAndPassword, loginWithGoogle } from '../../../utils/auth';
+import Swal from 'sweetalert2'; // Added import
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        
+        Swal.fire({
+            title: 'Authenticating...',
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+
         try {
             await loginWithEmailAndPassword(email, password);
+            Swal.close();
             navigate('/');
         } catch (err) {
-            setError('Failed to log in. Please check your credentials.');
+            Swal.fire({
+                icon: 'error',
+                title: 'Login Failed',
+                text: 'Invalid email or password. Please try again.',
+                confirmButtonColor: '#0d6efd'
+            });
         }
     };
 
-    const handleGoogleLogin = async () => {
-        try {
-            await loginWithGoogle();
-            navigate('/');
-        } catch (err) {
-            setError('Google login failed.');
-        }
-    };
+    // const handleGoogleLogin = async () => {
+    //     Swal.fire({
+    //         title: 'Connecting to Google...',
+    //         allowOutsideClick: false,
+    //         didOpen: () => Swal.showLoading()
+    //     });
+
+    //     try {
+    //         await loginWithGoogle();
+    //         Swal.close();
+    //         navigate('/');
+    //     } catch (err) {
+    //         Swal.fire({
+    //             icon: 'error',
+    //             title: 'Google Login Failed',
+    //             text: 'Could not authenticate with Google.',
+    //             confirmButtonColor: '#0d6efd'
+    //         });
+    //     }
+    // };
 
     return (
         <div className="container mt-5">
@@ -34,7 +59,6 @@ const Login = () => {
                     <div className="card shadow border-0">
                         <div className="card-body p-4">
                             <h2 className="text-center mb-4">Login</h2>
-                            {error && <div className="alert alert-danger">{error}</div>}
                             <form onSubmit={handleLogin}>
                                 <div className="mb-3">
                                     <label className="form-label">Email address</label>
@@ -56,17 +80,20 @@ const Login = () => {
                                         required 
                                     />
                                 </div>
-                                <button type="submit" className="btn btn-primary w-100 mb-3">Login</button>
+                                <button type="submit" className="btn btn-primary w-100 mb-3 py-2 shadow-sm">Login</button>
                             </form>
+                            
+                            {/* <div className="position-relative my-4">
+                                <hr />
+                                <span className="position-absolute top-50 start-50 translate-middle bg-white px-2 text-muted small">OR</span>
+                            </div>
+
                             <button onClick={handleGoogleLogin} className="btn btn-outline-danger w-100 mb-3">
                                 <i className="bi bi-google me-2"></i> Login with Google
-                            </button>
+                            </button> */}
+                            
                             <div className="text-center mt-3">
-                                <Link to="/forgot-password text-decoration-none">Forgot Password?</Link>
-                            </div>
-                            <div className="text-center mt-2">
-                                <span>Don't have an account? </span>
-                                <Link to="/register" className="text-decoration-none">Register</Link>
+                                <Link to="/forgot-password" size="small" className="text-decoration-none">Forgot Password?</Link>
                             </div>
                         </div>
                     </div>
