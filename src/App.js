@@ -129,4 +129,10 @@ export default App;
 // E-mail: ordinarypresident365247@gmail.com
 // Paass: aliyu-ordinarypresident365247
 
+// I used Logged in with G-mail:
 // Official Repository Github: https://github.com/ordinarypresident365247/affidavit-generation
+
+// Godady hosting: https://www.godaddy.com/hosting
+// Domain name registered: https://affidavit.pro
+// E-mail: ordinarypresident365247@gmail.com
+// Paass: aliyu-ordinarypresident365247
