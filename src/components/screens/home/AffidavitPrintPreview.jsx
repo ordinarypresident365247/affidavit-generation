@@ -85,7 +85,7 @@ const AffidavitPrintPreview = () => {
             position: absolute;
             left: 20px;
             top: 114px;
-            bottom: 84px;
+            bottom: 98px;
             width: 15px;
             border-left: 5px solid #1a4a1a !important;
             border-right: 5px solid #1a4a1a !important;
@@ -143,12 +143,13 @@ const AffidavitPrintPreview = () => {
       <div className="affidavit-container shadow-lg">
         {/* Top Header */}
         <div className="green-header">
-          <img src="/coat-of-arms.png" alt="Coat of Arms" style={{ height: '70px', backgroundColor: "white", borderRadius: '50%' }} />
+          <img src="/fct-logo.png" alt="FCT Logo" style={{ height: '70px' }} />
           <div className="text-center">
             <h1 className="m-0" style={{ fontSize: '38px', letterSpacing: '2px' }}>HIGH COURT OF JUSTICE</h1>
             <p className="m-0" style={{ fontSize: '14px', letterSpacing: '3px' }}>FEDERAL CAPITAL TERRITORY, ABUJA</p>
           </div>
-          <img src="/fct-logo.png" alt="FCT Logo" style={{ height: '70px' }} />
+          
+          <img src="/coat-of-arms.png" alt="Coat of Arms" style={{ height: '70px', backgroundColor: "white", borderRadius: '50%' }} />
         </div>
 
         <div className="side-bar"></div>
@@ -234,7 +235,7 @@ const AffidavitPrintPreview = () => {
                         style={{ width: '100%' }}
                       />
                       <div className="mt-1">
-                        <strong>{data.affidavitIdentifier}</strong><br/>
+                        {/* <strong>{data.affidavitIdentifier}</strong><br/> */}
                         <small>SCAN TO VERIFY AFFIDAVIT</small>
                       </div>
                     </div>
@@ -242,7 +243,7 @@ const AffidavitPrintPreview = () => {
                   <div className='col-8' style={{ padding: 0 }}>
                     <div className="text-center">
                         <small style={{ fontSize: 14 }}>AFFIDAVIT CODE</small><br/>
-                        <strong>{data.affidavitCode}</strong><br/>
+                        <strong>{data.affidavitIdentifier}</strong><br/>
                       </div>
                   </div>
                 </div>

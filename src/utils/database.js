@@ -2,7 +2,6 @@ import { db, storage } from "./firebase";
 import { collection, addDoc, serverTimestamp, query, where, getDocs, orderBy, doc, getDoc, runTransaction, updateDoc, deleteDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
-
 const stateCodeMap = {
   "Abia": "AB", "Adamawa": "AD", "Akwa Ibom": "AK", "Anambra": "AN", "Bauchi": "BA",
   "Bayelsa": "BY", "Benue": "BN", "Borno": "BR", "Cross River": "CR", "Delta": "DT",
@@ -41,7 +40,8 @@ export const saveAffidavitData = async (currentUser, data) => {
 
     let passportUrl       = "";
     let fingerprintUrl    = "";
-    let commissionerSignatureUrl = "";
+    // Use the signature URL passed from the selected commissioner in formData
+    let commissionerSignatureUrl = data.commissionerSignature || "";
 
     // 1. Upload Passport Photo to Storage
     if (data.passportPhoto) {
@@ -61,14 +61,6 @@ export const saveAffidavitData = async (currentUser, data) => {
       fingerprintUrl = await getDownloadURL(uploadResult.ref);
     }
 
-    // 3. Upload Judge Signature
-    if (data.commissionerSignature) {
-      console.log("Uploading commissioner signature...");
-      const signatureRef = ref(storage, `affidavits/${userId}/${Date.now()}_signature.png`);
-      const uploadResult = await uploadBytes(signatureRef, data.commissionerSignature);
-      commissionerSignatureUrl = await getDownloadURL(uploadResult.ref);
-    }
-
     // 3. Save Record to Firestore
     const affidavitRef = collection(db, "affidavits");
     const docRef = await addDoc(affidavitRef, {
@@ -86,16 +78,16 @@ export const saveAffidavitData = async (currentUser, data) => {
       fathersVillage: data.fathersVillage,
       mothersName: data.mothersName,
       mothersVillage: data.mothersVillage,
-      affidavitCode: data.affidavitCode,
+      // affidavitCode: data.affidavitCode,
       affidavitIdentifier: affidavitIdentifier,
       caseType: data.caseType,
+      commissionerId: data.commissionerId,
       commissionerName: data.commissionerName,
       commissionerTitle: data.commissionerTitle,
       passportUrl,
       fingerprintUrl,
       commissionerSignatureUrl,
       createdAt: serverTimestamp(),
-      //createdAt: new Date().toISOString()
     });
 
     return docRef.id;
@@ -234,4 +226,114 @@ export const getAffidavitByIdentifier = async (identifier) => {
     console.error("Error fetching affidavit by identifier:", error);
     throw error;
   }
+};
+
+const COLLECTION_NAME = "commissioners";
+
+/**
+ * Saves commissioner data to Firestore
+ * @param {Object} data - The commissioner details (name, designation, location, etc.)
+ */
+export const saveCommissionerData = async (userId, data) => {
+    try {
+        let signatureUrl = "";
+
+        // Upload Signature to Storage if it exists as a File
+        if (data.signature && data.signature instanceof File) {
+            const signatureRef = ref(storage, `commissioners/signatures/${Date.now()}_${data.signature.name}`);
+            const uploadResult = await uploadBytes(signatureRef, data.signature);
+            signatureUrl = await getDownloadURL(uploadResult.ref);
+        }
+
+        const docRef = await addDoc(collection(db, COLLECTION_NAME), {
+            creatorId: userId,
+            name: data.name,
+            court: data.court,
+            signature: signatureUrl,
+            createdAt: serverTimestamp()
+        });
+
+        return { success: true, id: docRef.id };
+    } catch (error) {
+        console.error("Error saving commissioner data: ", error);
+        throw error;
+    }
+};
+
+/**
+ * Retrieves all commissioner records from Firestore
+ */
+export const getCommissioners = async (userId) => {
+    try {
+        const q = query(
+            collection(db, COLLECTION_NAME), 
+            where("creatorId", "==", userId),
+            orderBy("createdAt", "desc")
+        );
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+    } catch (error) {
+        console.error("Error fetching commissioners: ", error);
+        throw error;
+    }
+};
+
+/**
+ * Retrieves a single commissioner record by ID
+ */
+export const getCommissionerById = async (id) => {
+    try {
+        const docRef = doc(db, COLLECTION_NAME, id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            return { id: docSnap.id, ...docSnap.data() };
+        } else {
+            throw new Error("Commissioner not found");
+        }
+    } catch (error) {
+        console.error("Error fetching commissioner: ", error);
+        throw error;
+    }
+};
+
+/**
+ * Updates a commissioner record in Firestore
+ */
+export const updateCommissioner = async (id, data) => {
+    try {
+        const docRef = doc(db, COLLECTION_NAME, id);
+        let updateData = { 
+            name: data.name,
+            court: data.court,
+            updatedAt: serverTimestamp() 
+        };
+
+        // Only upload if a new File is provided
+        if (data.signature && data.signature instanceof File) {
+            const signatureRef = ref(storage, `commissioners/signatures/${Date.now()}_${data.signature.name}`);
+            const uploadResult = await uploadBytes(signatureRef, data.signature);
+            updateData.signature = await getDownloadURL(uploadResult.ref);
+        }
+
+        await updateDoc(docRef, updateData);
+    } catch (error) {
+        console.error("Error updating commissioner: ", error);
+        throw error;
+    }
+};
+
+/**
+ * Deletes a commissioner record from Firestore
+ */
+export const deleteCommissioner = async (id) => {
+    try {
+        const docRef = doc(db, COLLECTION_NAME, id);
+        await deleteDoc(docRef);
+    } catch (error) {
+        console.error("Error deleting commissioner: ", error);
+        throw error;
+    }
 };

@@ -18,6 +18,10 @@ import AddUser from './components/screens/admin/AddUser';
 import EditUser from './components/screens/admin/EditUser';
 import AllAffidavitList from './components/screens/admin/AllAffidavitList';
 
+import CommissionersList from './components/screens/home/CommissionersList';
+import AddCommissioner from './components/screens/home/AddCommissioner';
+import EditCommissioner from './components/screens/home/EditCommissioner';
+
 import PublicVerifyAffidavit from './components/screens/verification/PublicVerifyAffidavit';
 import PublicVerificationPortal from './components/screens/verification/PublicVerificationPortal';
 
@@ -98,6 +102,9 @@ function App() {
               <Route index element={<Dashboard />} />
               <Route path="create" element={<CreateAffidavit />} />
               <Route path="list" element={<AffidavitList />} />
+              <Route path="commissioners" element={<CommissionersList />} />
+              <Route path="add-commissioner" element={<AddCommissioner />} />
+              <Route path="edit-commissioner/:id" element={<EditCommissioner />} />
               <Route path="view/:id" element={<ViewAffidavit />} />
               {/* <Route path="print/preview/:id" element={<AffidavitPrintPreview />} /> */}
             </Route>

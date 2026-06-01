@@ -37,6 +37,9 @@ const HomeTopNav = () => {
               <li className="nav-item">
                 <Link className="nav-link" to="/home/list">Affidavits Lists</Link>
               </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/home/commissioners">Commissioners</Link>
+              </li>
             </ul>
             <div className="d-flex align-items-center">
               <span className="text-light me-3 small">{currentUser?.fullName}</span>

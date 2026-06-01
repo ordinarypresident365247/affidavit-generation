@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Swal from 'sweetalert2';
+import Cropper from 'react-easy-crop';
 import DigitalPersonaScanner from '../../../utils/DigitalPersonaScanner';
 import ZKTecoScanner from '../../../utils/ZKTecoScanner';
 import FutronicScanner from '../../../utils/FutronicScanner';
 import { useAuth } from '../../../contexts/authContext';
-import { saveAffidavitData } from '../../../utils/database';
+import { saveAffidavitData, getCommissioners  } from '../../../utils/database';
 import { useNavigate } from 'react-router-dom';
 
 const NIGERIA_STATES_LGA = {
@@ -48,12 +49,24 @@ const NIGERIA_STATES_LGA = {
 };
 
 const CreateAffidavit = () => {
+
+
+  
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [commissioners, setCommissioners] = useState([]);
 
   const [passportPreview, setPassportPreview] = useState(null);
   const [fingerprintPreview, setFingerprintPreview] = useState(null);
+
+  // Cropper States
+  const [imageToCrop, setImageToCrop] = useState(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+  const [showCropModal, setShowCropModal] = useState(false);
+
   const [signaturePreview, setSignaturePreview] = useState(null);
   const [scannerStatus, setScannerStatus] = useState("Idle");
   const [scannerType, setScannerType] = useState('zkteco'); // 'zkteco', 'digitalpersona', or 'futronic'
@@ -77,6 +90,7 @@ const CreateAffidavit = () => {
     mothersVillage: "",
     affidavitCode: "",
     caseType: "",
+    commissionerId: "", // Track selected ID
     commissionerName: "",
     commissionerTitle: "",
     commissionerSignature: null,
@@ -85,6 +99,14 @@ const CreateAffidavit = () => {
   });
 
   useEffect(() => {
+    const fetchCommissioners = async () => {
+      if (currentUser?.uid) {
+        const data = await getCommissioners(currentUser.uid);
+        setCommissioners(data);
+      }
+    };
+    fetchCommissioners();
+
     if (scannerType === 'zkteco') {
       scanner.current = new ZKTecoScanner();
     } else if (scannerType === 'digitalpersona') {
@@ -99,7 +121,7 @@ const CreateAffidavit = () => {
         scanner.current.stopCapture(selectedReader);
       }
     };
-  }, [scannerType]);
+  }, [scannerType, currentUser]);
 
   const loadReaders = async () => {
     try {
@@ -161,6 +183,75 @@ const CreateAffidavit = () => {
     }
   };
 
+  // Image Cropping Helpers
+  const createImage = (url) =>
+    new Promise((resolve, reject) => {
+      const image = new Image();
+      image.addEventListener('load', () => resolve(image));
+      image.addEventListener('error', (error) => reject(error));
+      image.setAttribute('crossOrigin', 'anonymous');
+      image.src = url;
+    });
+
+  const getCroppedImg = async (imageSrc, pixelCrop) => {
+    const image = await createImage(imageSrc);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    canvas.width = pixelCrop.width;
+    canvas.height = pixelCrop.height;
+
+    ctx.drawImage(
+      image,
+      pixelCrop.x,
+      pixelCrop.y,
+      pixelCrop.width,
+      pixelCrop.height,
+      0,
+      0,
+      pixelCrop.width,
+      pixelCrop.height
+    );
+
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => {
+        resolve(blob);
+      }, 'image/jpeg');
+    });
+  };
+
+  const onCropComplete = (croppedArea, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  };
+
+  const handlePassportChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.addEventListener('load', () => {
+        setImageToCrop(reader.result);
+        setShowCropModal(true);
+      });
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCropSave = async () => {
+    try {
+      const croppedImageBlob = await getCroppedImg(imageToCrop, croppedAreaPixels);
+      const croppedImageUrl = URL.createObjectURL(croppedImageBlob);
+      const croppedFile = new File([croppedImageBlob], "passport.jpg", { type: "image/jpeg" });
+
+      setPassportPreview(croppedImageUrl);
+      setFormData(prev => ({ ...prev, passportPhoto: croppedFile }));
+      setShowCropModal(false);
+      setImageToCrop(null);
+    } catch (e) {
+      Swal.fire('Error', 'Failed to crop image', 'error');
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name === 'stateOfOrigin') {
@@ -170,19 +261,24 @@ const CreateAffidavit = () => {
     }
   };
 
-  const handlePassportChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setPassportPreview(URL.createObjectURL(file));
-      setFormData(prev => ({ ...prev, passportPhoto: file }));
-    }
-  };
+  // const handlePassportChange = (e) => {
+  //   const file = e.target.files[0];
+  //   if (file) {
+  //     setPassportPreview(URL.createObjectURL(file));
+  //     setFormData(prev => ({ ...prev, passportPhoto: file }));
+  //   }
+  // };
 
-  const handleSignatureChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSignaturePreview(URL.createObjectURL(file));
-      setFormData(prev => ({ ...prev, commissionerSignature: file }));
+  const handleCommissionerSelect = (e) => {
+    const selected = commissioners.find(c => c.id === e.target.value);
+    if (selected) {
+      setFormData(prev => ({
+        ...prev,
+        commissionerId: selected.id,
+        commissionerName: selected.name,
+        commissionerTitle: selected.court,
+        commissionerSignature: selected.signature // Assuming URL or reference
+      }));
     }
   };
 
@@ -231,13 +327,15 @@ const CreateAffidavit = () => {
     setFingerprintPreview(null);
     setSignaturePreview(null);
     setScannerStatus("Idle");
+    setImageToCrop(null);
+    setShowCropModal(false);
 
     setFormData({
       fullName: '', address: '', gender: '', phoneNumber: '',
       stateOfOrigin: '', lga: '', familyName: '', fathersName: '',
       fathersVillage: '', mothersName: '', mothersVillage: '',
       affidavitCode: '', caseType: '', commissionerName: '', 
-      commissionerTitle: '', commissionerSignature: null, 
+      commissionerId: '', commissionerTitle: '', commissionerSignature: null, 
       passportPhoto: null, fingerprintData: null
     });
   };
@@ -250,6 +348,34 @@ const CreateAffidavit = () => {
 
   return (
     <div className="card shadow-sm p-4 border-0">
+      {/* Crop Modal Overlay */}
+      { showCropModal && (
+        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style={{ zIndex: 1060, background: 'rgba(0,0,0,0.85)' }}>
+          <div className="bg-white p-4 rounded-4 shadow-lg" style={{ width: '95%', maxWidth: '550px' }}>
+            <h5 className="mb-3 fw-bold">Crop Passport Photo</h5>
+            <div className="position-relative mb-3 border rounded overflow-hidden" style={{ height: '350px', background: '#f8f9fa' }}>
+              <Cropper
+                image={imageToCrop}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                onCropChange={setCrop}
+                onCropComplete={onCropComplete}
+                onZoomChange={setZoom}
+              />
+            </div>
+            <div className="mb-4">
+              <label className="form-label small text-muted">Zoom Control</label>
+              <input type="range" className="form-range" value={zoom} min={1} max={3} step={0.1} onChange={(e) => setZoom(e.target.value)} />
+            </div>
+            <div className="d-flex justify-content-end gap-2">
+              <button type="button" className="btn btn-light px-4" onClick={() => setShowCropModal(false)}>Cancel</button>
+              <button type="button" className="btn btn-primary px-4" onClick={handleCropSave}>Apply & Save</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="mb-4">
         <h3>Create New Affidavit</h3>
         <p className="text-muted">Fill in the details below. Fields marked with <span className="text-danger">*</span> are required.</p>
@@ -405,10 +531,10 @@ const CreateAffidavit = () => {
             <RequiredLabel>Name of Mother’s Village</RequiredLabel>
             <input name="mothersVillage" type="text" className="form-control" value={formData.mothersVillage} onChange={handleChange} required />
           </div>
-          <div className="col-md-6">
+          {/* <div className="col-md-6">
             <RequiredLabel>Affidavit Code</RequiredLabel>
             <input name="affidavitCode" type="text" className="form-control" value={formData.affidavitCode} onChange={handleChange} required />
-          </div>
+          </div> */}
 
           {/* <div className="col-md-12">
             <div className="alert alert-info py-2 small border-0 shadow-none mb-0">
@@ -417,7 +543,7 @@ const CreateAffidavit = () => {
             </div>
           </div> */}
 
-          <div className="col-md-12">
+          <div className="col-md-6">
             <RequiredLabel>Type of Case</RequiredLabel>
             <select name="caseType" className="form-select" value={formData.caseType} onChange={handleChange} required>
               <option value="">Select Case Type</option>
@@ -428,7 +554,23 @@ const CreateAffidavit = () => {
             </select>
           </div>
 
-          <div className="col-md-4">
+          <div className="col-md-6">
+            <RequiredLabel>Select Commissioner of Oaths</RequiredLabel>
+            <select 
+              name="commissionerId" 
+              className="form-select" 
+              value={formData.commissionerId} 
+              onChange={handleCommissionerSelect} 
+              required
+            >
+              <option value="">-- Choose Commissioner --</option>
+              {commissioners.map(c => (
+                <option key={c.id} value={c.id}>{c.name} ({c.court})</option>
+              ))}
+            </select>
+          </div>
+
+          {/* <div className="col-md-4">
             <RequiredLabel>Commissioner of Oaths Name</RequiredLabel>
             <input name="commissionerName" type="text" className="form-control" value={formData.commissionerName} onChange={handleChange} required />
           </div>
@@ -444,7 +586,8 @@ const CreateAffidavit = () => {
                 <img src={signaturePreview} alt="Signature Preview" className="img-thumbnail" style={{ height: '50px' }} />
               </div>
             )}
-          </div>
+          </div> */}
+          
         </div>
 
         <div className="mt-5 d-flex justify-content-end border-top pt-4">

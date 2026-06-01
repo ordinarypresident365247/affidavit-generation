@@ -182,10 +182,10 @@ const ViewAffidavit = () => {
                 <label className="text-muted small">Type of Case</label>
                 <p className="fw-bold border-bottom pb-1 text-uppercase text-danger">{data.caseType?.replace('_', ' ')}</p>
               </div>
-              <div className="col-md-6">
+              {/* <div className="col-md-6">
                 <label className="text-muted small">Affidavit Code</label>
                 <p className="fw-bold"><code className="bg-light p-1 px-2 rounded text-dark border">{data.affidavitCode}</code></p>
-              </div>
+              </div> */}
 
               <div className="col-md-6">
                 <label className="text-muted small">Official Affidavit Identifier</label>
@@ -196,7 +196,7 @@ const ViewAffidavit = () => {
                 </p>
               </div>
 
-              <div className="col-md-6">
+              <div className="col-md-12">
                 <label className="text-muted small">Commissioner of Oaths</label>
                 <p className="fw-bold mb-0">{data.commissionerName}</p>
                 <small className="text-muted d-block mb-1">{data.commissionerTitle}</small>
