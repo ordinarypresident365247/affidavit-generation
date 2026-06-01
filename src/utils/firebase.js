@@ -6,13 +6,13 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBPcXfPldX3gyWGKz1sQr4b_Pwp6-2nDSo",
-  authDomain: "affidavit-generation.firebaseapp.com",
-  projectId: "affidavit-generation",
-  storageBucket: "affidavit-generation.firebasestorage.app",
-  messagingSenderId: "69333902326",
-  appId: "1:69333902326:web:2f222003afb95c24905dd7",
-  measurementId: "G-EENSM30CWT"
+  apiKey: "AIzaSyA_C6pC3I2M8dxkGFYbnpwjDDMQNEjr1lQ",
+  authDomain: "affidavit-generation-id.firebaseapp.com",
+  projectId: "affidavit-generation-id",
+  storageBucket: "affidavit-generation-id.firebasestorage.app",
+  messagingSenderId: "145498941165",
+  appId: "1:145498941165:web:3008a73bccf76e99d88ee4",
+  measurementId: "G-90PL89VDJJ"
 };
 
 // Initialize Firebase

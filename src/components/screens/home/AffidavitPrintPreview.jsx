@@ -81,6 +81,26 @@ const AffidavitPrintPreview = () => {
             justify-content: space-between;
             border-bottom: 5px solid #d4af37 !important;
           }
+          .maroon-header {
+            background: radial-gradient(circle at center, #8e1b1b 0%, #4a0000 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 5px solid #d4af37 !important;
+
+          }
+          .side-bar {
+            position: absolute;
+            left: 20px;
+            top: 114px;
+            bottom: 77px;
+            width: 15px;
+            border-left: 5px solid #800000 !important;
+            border-right: 5px solid #800000 !important;
+          }
+          /*
           .side-bar {
             position: absolute;
             left: 20px;
@@ -90,6 +110,7 @@ const AffidavitPrintPreview = () => {
             border-left: 5px solid #1a4a1a !important;
             border-right: 5px solid #1a4a1a !important;
           }
+          */
           .affidavit-title {
             text-decoration: underline;
             font-weight: bold;
@@ -142,7 +163,7 @@ const AffidavitPrintPreview = () => {
 
       <div className="affidavit-container shadow-lg">
         {/* Top Header */}
-        <div className="green-header">
+        <div className="maroon-header">
           <img src="/fct-logo.png" alt="FCT Logo" style={{ height: '70px' }} />
           <div className="text-center">
             <h1 className="m-0" style={{ fontSize: '38px', letterSpacing: '2px' }}>HIGH COURT OF JUSTICE</h1>
@@ -160,7 +181,7 @@ const AffidavitPrintPreview = () => {
           <div className='row align-items-center' style={{ marginTop: "10px" }}>
             <div className='col-10' >
               <h5 className="affidavit-title">
-                AFFIDAVIT OF BREKETE FAMILY / HUMAN RIGHTS RADIO AND TV {/*data.caseType?.replace('_', ' ').toUpperCase()*/}
+                AFFIDAVIT OF BREKETE FAMILY / HUMAN RIGHTS RADIO AND TELEVISION {/*data.caseType?.replace('_', ' ').toUpperCase()*/}
               </h5>
             </div>
             <div className='col-2'>
@@ -279,7 +300,7 @@ const AffidavitPrintPreview = () => {
 
         </div>
 
-        <div className="text-center pt-2 pb-2 border-top border-secondary border-3">
+        <div className="text-center pt-2 pb-2 border-top border-secondary border-3" style={{ borderTopColor: '#800000' }}>
           <small className="text-muted">
             Kindly scan QR code or visit <strong>{ window.location.origin + '/verify' }</strong> to verify affidavit.
           </small>
