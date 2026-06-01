@@ -105,7 +105,7 @@ const AffidavitPrintPreview = () => {
             position: absolute;
             left: 20px;
             top: 114px;
-            bottom: 98px;
+            bottom: 82px;
             width: 15px;
             border-left: 5px solid #1a4a1a !important;
             border-right: 5px solid #1a4a1a !important;
