@@ -124,7 +124,7 @@ const AffidavitPrintPreview = () => {
             color: #a52a2a !important;
             padding: 5px 15px;
             text-align: center;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
             display: inline-block;
           }

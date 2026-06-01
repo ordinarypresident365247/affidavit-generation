@@ -25,6 +25,8 @@ import EditCommissioner from './components/screens/home/EditCommissioner';
 import PublicVerifyAffidavit from './components/screens/verification/PublicVerifyAffidavit';
 import PublicVerificationPortal from './components/screens/verification/PublicVerificationPortal';
 
+// import SetupAdmin from './components/screens/auth/SetupAdmin';
+
 // Redirect to /login if not authenticated
 const PrivateRoute = ({ children }) => {
   const { userLoggedIn, loading } = useAuth();
@@ -75,6 +77,8 @@ function App() {
             {/* Public Verification Route */}
             <Route path="/verify" element={<PublicVerificationPortal />} />
             <Route path="/verify/:identifier" element={<PublicVerifyAffidavit />} />
+
+            {/* <Route path="/setup-initial-admin-xyz" element={<SetupAdmin />} /> */}
 
             {/* Auth Routes */}
             <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
