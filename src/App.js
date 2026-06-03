@@ -31,35 +31,55 @@ import { AuthProvider, useAuth } from './contexts/authContext';
 // import AddRegistrar from './components/screens/home/AddRegistrar';
 // import EditRegistrar from './components/screens/home/EditRegistrar'; // Assume this exists or will be created
 
-// Lazy load components for code splitting
-const Login = lazy(() => import('./components/screens/auth/Login'));
-const ForgotPassword = lazy(() => import('./components/screens/auth/ForgotPassword'));
-const HomeTopNav = lazy(() => import('./components/screens/home/HomeTopNav'));
-const AdminTopNav = lazy(() => import('./components/screens/admin/AdminTopNav'));
-const Dashboard = lazy(() => import('./components/screens/home/Dashboard'));
-const CreateAffidavit = lazy(() => import('./components/screens/home/CreateAffidavit'));
-const AffidavitList = lazy(() => import('./components/screens/home/AffidavitList'));
-const ViewAffidavit = lazy(() => import('./components/screens/home/ViewAffidavit'));
-const AffidavitPrintPreview = lazy(() => import('./components/screens/home/AffidavitPrintPreview'));
-const AdminDashboard = lazy(() => import('./components/screens/admin/AdminDashboard'));
+// Helper to handle ChunkLoadError (common during new deployments)
+const lazyWithRetry = (componentImport) =>
+  lazy(async () => {
+    const pageHasBeenRefreshed = JSON.parse(
+      window.sessionStorage.getItem('page-has-been-force-refreshed') || 'false'
+    );
 
-const UsersList = lazy(() => import('./components/screens/admin/UsersList'));
-const AddUser = lazy(() => import('./components/screens/admin/AddUser'));
-const EditUser = lazy(() => import('./components/screens/admin/EditUser'));
-const AllAffidavitList = lazy(() => import('./components/screens/admin/AllAffidavitList'));
+    try {
+      const component = await componentImport();
+      window.sessionStorage.setItem('page-has-been-force-refreshed', 'false');
+      return component;
+    } catch (error) {
+      if (!pageHasBeenRefreshed) {
+        window.sessionStorage.setItem('page-has-been-force-refreshed', 'true');
+        return window.location.reload();
+      }
+      throw error;
+    }
+  });
 
-const CommissionersList = lazy(() => import('./components/screens/home/CommissionersList'));
-const AddCommissioner = lazy(() => import('./components/screens/home/AddCommissioner'));
-const EditCommissioner = lazy(() => import('./components/screens/home/EditCommissioner'));
+// Lazy load components with retry logic
+const Login = lazyWithRetry(() => import('./components/screens/auth/Login'));
+const ForgotPassword = lazyWithRetry(() => import('./components/screens/auth/ForgotPassword'));
+const HomeTopNav = lazyWithRetry(() => import('./components/screens/home/HomeTopNav'));
+const AdminTopNav = lazyWithRetry(() => import('./components/screens/admin/AdminTopNav'));
+const Dashboard = lazyWithRetry(() => import('./components/screens/home/Dashboard'));
+const CreateAffidavit = lazyWithRetry(() => import('./components/screens/home/CreateAffidavit'));
+const AffidavitList = lazyWithRetry(() => import('./components/screens/home/AffidavitList'));
+const ViewAffidavit = lazyWithRetry(() => import('./components/screens/home/ViewAffidavit'));
+const AffidavitPrintPreview = lazyWithRetry(() => import('./components/screens/home/AffidavitPrintPreview'));
+const AdminDashboard = lazyWithRetry(() => import('./components/screens/admin/AdminDashboard'));
 
-const PublicVerifyAffidavit = lazy(() => import('./components/screens/verification/PublicVerifyAffidavit'));
-const PublicVerificationPortal = lazy(() => import('./components/screens/verification/PublicVerificationPortal'));
+const UsersList = lazyWithRetry(() => import('./components/screens/admin/UsersList'));
+const AddUser = lazyWithRetry(() => import('./components/screens/admin/AddUser'));
+const EditUser = lazyWithRetry(() => import('./components/screens/admin/EditUser'));
+const AllAffidavitList = lazyWithRetry(() => import('./components/screens/admin/AllAffidavitList'));
 
-//const SetupAdmin = lazy(() => import('./components/screens/auth/SetupAdmin'));
+const CommissionersList = lazyWithRetry(() => import('./components/screens/home/CommissionersList'));
+const AddCommissioner = lazyWithRetry(() => import('./components/screens/home/AddCommissioner'));
+const EditCommissioner = lazyWithRetry(() => import('./components/screens/home/EditCommissioner'));
 
-const RegistrarsList = lazy(() => import('./components/screens/home/RegistrarsList'));
-const AddRegistrar = lazy(() => import('./components/screens/home/AddRegistrar'));
-const EditRegistrar = lazy(() => import('./components/screens/home/EditRegistrar'));
+const PublicVerifyAffidavit = lazyWithRetry(() => import('./components/screens/verification/PublicVerifyAffidavit'));
+const PublicVerificationPortal = lazyWithRetry(() => import('./components/screens/verification/PublicVerificationPortal'));
+
+// const SetupAdmin = lazy(() => import('./components/screens/auth/SetupAdmin'));
+
+const RegistrarsList = lazyWithRetry(() => import('./components/screens/home/RegistrarsList'));
+const AddRegistrar = lazyWithRetry(() => import('./components/screens/home/AddRegistrar'));
+const EditRegistrar = lazyWithRetry(() => import('./components/screens/home/EditRegistrar'));
 
 const LoadingFallback = () => (
   <div className="d-flex justify-content-center align-items-center vh-100">
