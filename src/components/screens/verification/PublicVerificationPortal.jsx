@@ -31,14 +31,14 @@ const PublicVerificationPortal = () => {
                                     <label className="form-label fw-bold small text-uppercase text-muted">Affidavit Identifier</label>
                                     <input 
                                         type="text" 
-                                        className="form-control form-control-lg border-2" 
-                                        placeholder="e.g. FCT-2026-000124"
+                                        className="form-control form-control-lg border-2"
+                                        placeholder="e.g. FCT-2025-HRT-000124"
                                         value={identifier}
                                         onChange={(e) => setIdentifier(e.target.value.toUpperCase())}
                                         required
                                         autoFocus
                                     />
-                                    <div className="form-text mt-2">Format: STATE-YEAR-SERIAL (e.g., LA-2025-000001)</div>
+                                    <div className="form-text mt-2">Format: STATE-YEAR-HRT-SERIAL (e.g., LA-2025-HRT-000001)</div>
                                 </div>
                                 <button type="submit" className="btn btn-primary btn-lg w-100 shadow-sm py-3 fw-bold">
                                     <i className="bi bi-search me-2"></i> Verify Now

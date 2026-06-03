@@ -5,7 +5,7 @@ import DigitalPersonaScanner from '../../../utils/DigitalPersonaScanner';
 import ZKTecoScanner from '../../../utils/ZKTecoScanner';
 import FutronicScanner from '../../../utils/FutronicScanner';
 import { useAuth } from '../../../contexts/authContext';
-import { saveAffidavitData, getCommissioners  } from '../../../utils/database';
+import { saveAffidavitData, getCommissioners, getRegistrars } from '../../../utils/database';
 import { useNavigate } from 'react-router-dom';
 
 const NIGERIA_STATES_LGA = {
@@ -56,6 +56,7 @@ const CreateAffidavit = () => {
   const { currentUser } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [commissioners, setCommissioners] = useState([]);
+  const [registrars, setRegistrars] = useState([]);
 
   const [passportPreview, setPassportPreview] = useState(null);
   const [fingerprintPreview, setFingerprintPreview] = useState(null);
@@ -69,7 +70,7 @@ const CreateAffidavit = () => {
 
   const [signaturePreview, setSignaturePreview] = useState(null);
   const [scannerStatus, setScannerStatus] = useState("Idle");
-  const [scannerType, setScannerType] = useState('zkteco'); // 'zkteco', 'digitalpersona', or 'futronic'
+  const [scannerType, setScannerType] = useState('digitalpersona'); // 'digitalpersona', 'zkteco', or 'futronic'
   
   const [readers, setReaders] = useState([]);
   const [selectedReader, setSelectedReader] = useState("");
@@ -94,18 +95,26 @@ const CreateAffidavit = () => {
     commissionerName: "",
     commissionerTitle: "",
     commissionerSignature: null,
+    registrarId: "",
+    registrarName: "",
+    registrarTitle: "",
+    registrarSignature: null,
     passportPhoto: null,
     fingerprintData: null
   });
 
   useEffect(() => {
-    const fetchCommissioners = async () => {
+    const fetchData = async () => {
       if (currentUser?.uid) {
-        const data = await getCommissioners(currentUser.uid);
-        setCommissioners(data);
+        const [commData, regData] = await Promise.all([
+          getCommissioners(currentUser.uid),
+          getRegistrars(currentUser.uid)
+        ]);
+        setCommissioners(commData);
+        setRegistrars(regData);
       }
     };
-    fetchCommissioners();
+    fetchData();
 
     if (scannerType === 'zkteco') {
       scanner.current = new ZKTecoScanner();
@@ -282,6 +291,19 @@ const CreateAffidavit = () => {
     }
   };
 
+  const handleRegistrarSelect = (e) => {
+    const selected = registrars.find(r => r.id === e.target.value);
+    if (selected) {
+      setFormData(prev => ({
+        ...prev,
+        registrarId: selected.id,
+        registrarName: selected.name,
+        registrarTitle: selected.title,
+        registrarSignature: selected.signature 
+      }));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.passportPhoto) {
@@ -331,11 +353,12 @@ const CreateAffidavit = () => {
     setShowCropModal(false);
 
     setFormData({
-      fullName: '', address: '', gender: '', phoneNumber: '',
+      fullName: '', nin: '', address: '', gender: '', phoneNumber: '',
       stateOfOrigin: '', lga: '', familyName: '', fathersName: '',
       fathersVillage: '', mothersName: '', mothersVillage: '',
       affidavitCode: '', caseType: '', commissionerName: '', 
       commissionerId: '', commissionerTitle: '', commissionerSignature: null, 
+      registrarId: '', registrarName: '', registrarTitle: '', registrarSignature: null,
       passportPhoto: null, fingerprintData: null
     });
   };
@@ -406,13 +429,6 @@ const CreateAffidavit = () => {
               <div className="btn-group btn-group-sm" role="group">
                 <button 
                   type="button" 
-                  className={`btn ${scannerType === 'zkteco' ? 'btn-primary' : 'btn-outline-primary'}`}
-                  onClick={() => setScannerType('zkteco')}
-                >
-                  ZKTeco
-                </button>
-                <button 
-                  type="button" 
                   className={`btn ${scannerType === 'digitalpersona' ? 'btn-primary' : 'btn-outline-primary'}`}
                   onClick={() => setScannerType('digitalpersona')}
                 >
@@ -424,6 +440,13 @@ const CreateAffidavit = () => {
                   onClick={() => setScannerType('futronic')}
                 >
                   Futronic
+                </button>
+                <button 
+                  type="button" 
+                  className={`btn ${scannerType === 'zkteco' ? 'btn-primary' : 'btn-outline-primary'}`}
+                  onClick={() => setScannerType('zkteco')}
+                >
+                  ZKTeco
                 </button>
               </div>
             </div>
@@ -470,6 +493,10 @@ const CreateAffidavit = () => {
           <div className="col-md-6">
             <RequiredLabel>Full Name</RequiredLabel>
             <input name="fullName" type="text" className="form-control" value={formData.fullName} onChange={handleChange} required />
+          </div>
+          <div className="col-md-6">
+            <RequiredLabel>NIN (National Identification Number)</RequiredLabel>
+            <input name="nin" type="text" className="form-control" placeholder="11-digit NIN" maxLength="11" value={formData.nin} onChange={handleChange} required />
           </div>
           <div className="col-md-6">
             <RequiredLabel>Address</RequiredLabel>
@@ -543,7 +570,7 @@ const CreateAffidavit = () => {
             </div>
           </div> */}
 
-          <div className="col-md-6">
+          <div className="col-md-12">
             <RequiredLabel>Type of Case</RequiredLabel>
             <select name="caseType" className="form-select" value={formData.caseType} onChange={handleChange} required>
               <option value="">Select Case Type</option>
@@ -566,6 +593,22 @@ const CreateAffidavit = () => {
               <option value="">-- Choose Commissioner --</option>
               {commissioners.map(c => (
                 <option key={c.id} value={c.id}>{c.name} ({c.court})</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="col-md-6">
+            <RequiredLabel>Select Registrar</RequiredLabel>
+            <select 
+              name="registrarId" 
+              className="form-select" 
+              value={formData.registrarId} 
+              onChange={handleRegistrarSelect} 
+              required
+            >
+              <option value="">-- Choose Registrar --</option>
+              {registrars.map(r => (
+                <option key={r.id} value={r.id}>{r.name} ({r.title})</option>
               ))}
             </select>
           </div>

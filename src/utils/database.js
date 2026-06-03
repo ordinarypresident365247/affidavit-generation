@@ -30,7 +30,7 @@ const generateAffidavitIdentifier = async (stateName) => {
   });
 
   const serialStr = newSerial.toString().padStart(6, '0');
-  return `${stateCode}-${year}-${serialStr}`;
+  return `${stateCode}-${year}-HRT-${serialStr}`;
 };
 
 export const saveAffidavitData = async (currentUser, data) => {
@@ -40,8 +40,10 @@ export const saveAffidavitData = async (currentUser, data) => {
 
     let passportUrl       = "";
     let fingerprintUrl    = "";
-    // Use the signature URL passed from the selected commissioner in formData
+
+    // Use the signature URLs passed from the selected commissioner/registrar in formData
     let commissionerSignatureUrl = data.commissionerSignature || "";
+    let registrarSignatureUrl = data.registrarSignature || "";
 
     // 1. Upload Passport Photo to Storage
     if (data.passportPhoto) {
@@ -68,6 +70,7 @@ export const saveAffidavitData = async (currentUser, data) => {
       courtTitle: currentUser.courtTitle,
       courtState: currentUser.courtState,
       fullName: data.fullName,
+      nin: data.nin,
       address: data.address,
       gender: data.gender,
       phoneNumber: data.phoneNumber,
@@ -84,9 +87,13 @@ export const saveAffidavitData = async (currentUser, data) => {
       commissionerId: data.commissionerId,
       commissionerName: data.commissionerName,
       commissionerTitle: data.commissionerTitle,
+      registrarId: data.registrarId,
+      registrarName: data.registrarName,
+      registrarTitle: data.registrarTitle,
       passportUrl,
       fingerprintUrl,
       commissionerSignatureUrl,
+      registrarSignatureUrl,
       createdAt: serverTimestamp(),
     });
 
@@ -334,6 +341,115 @@ export const deleteCommissioner = async (id) => {
         await deleteDoc(docRef);
     } catch (error) {
         console.error("Error deleting commissioner: ", error);
+        throw error;
+    }
+};
+
+const REGISTRARS_COLLECTION = "registrars";
+
+/**
+ * Saves registrar data to Firestore
+ */
+export const saveRegistrarData = async (userId, data) => {
+    try {
+        let signatureUrl = "";
+
+        // Upload Signature to Storage if it exists
+        if (data.signature && data.signature instanceof File) {
+            // Added ${userId}/ to the path for better security
+            const signatureRef = ref(storage, `registrars/signatures/${userId}/${Date.now()}_${data.signature.name}`);
+            const uploadResult = await uploadBytes(signatureRef, data.signature);
+            signatureUrl = await getDownloadURL(uploadResult.ref);
+        }
+
+        const docRef = await addDoc(collection(db, REGISTRARS_COLLECTION), {
+            creatorId: userId,
+            name: data.name,
+            title: data.title,
+            signature: signatureUrl,
+            createdAt: serverTimestamp()
+        });
+
+        return { success: true, id: docRef.id };
+    } catch (error) {
+        console.error("Error saving registrar data: ", error);
+        throw error;
+    }
+};
+
+/**
+ * Retrieves all registrar records for a user
+ */
+export const getRegistrars = async (userId) => {
+    try {
+        const q = query(
+            collection(db, REGISTRARS_COLLECTION), 
+            where("creatorId", "==", userId),
+            orderBy("createdAt", "desc")
+        );
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+    } catch (error) {
+        console.error("Error fetching registrars: ", error);
+        throw error;
+    }
+};
+
+/**
+ * Retrieves a single registrar record by ID
+ */
+export const getRegistrarById = async (id) => {
+    try {
+        const docRef = doc(db, REGISTRARS_COLLECTION, id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            return { id: docSnap.id, ...docSnap.data() };
+        } else {
+            throw new Error("Registrar not found");
+        }
+    } catch (error) {
+        console.error("Error fetching registrar: ", error);
+        throw error;
+    }
+};
+
+/**
+ * Updates a registrar record
+ */
+export const updateRegistrar = async (id, data) => {
+    try {
+        const docRef = doc(db, REGISTRARS_COLLECTION, id);
+        let updateData = { 
+            name: data.name,
+            title: data.title,
+            updatedAt: serverTimestamp() 
+        };
+
+        if (data.signature && data.signature instanceof File) {
+            const signatureRef = ref(storage, `registrars/signatures/${Date.now()}_${data.signature.name}`);
+            const uploadResult = await uploadBytes(signatureRef, data.signature);
+            updateData.signature = await getDownloadURL(uploadResult.ref);
+        }
+
+        await updateDoc(docRef, updateData);
+    } catch (error) {
+        console.error("Error updating registrar: ", error);
+        throw error;
+    }
+};
+
+/**
+ * Deletes a registrar record
+ */
+export const deleteRegistrar = async (id) => {
+    try {
+        const docRef = doc(db, REGISTRARS_COLLECTION, id);
+        await deleteDoc(docRef);
+    } catch (error) {
+        console.error("Error deleting registrar: ", error);
         throw error;
     }
 };

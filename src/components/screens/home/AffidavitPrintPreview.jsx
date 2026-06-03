@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { getAffidavitById } from '../../../utils/database';
+import { getAffidavitById, getUserById } from '../../../utils/database';
+import { useAuth } from '../../../contexts/authContext';
 
 const AffidavitPrintPreview = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [data, setData] = useState(null);
+  const [creatorData, setCreatorData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -14,6 +16,12 @@ const AffidavitPrintPreview = () => {
       try {
         const result = await getAffidavitById(id);
         setData(result);
+        
+        // Fetch court information using creatorId
+        if (result.creatorId) {
+          const userData = await getUserById(result.creatorId);
+          setCreatorData(userData);
+        }
       } catch (error) {
         Swal.fire('Error', 'Could not find the record', 'error');
         navigate('/home/list');
@@ -95,7 +103,7 @@ const AffidavitPrintPreview = () => {
             position: absolute;
             left: 20px;
             top: 114px;
-            bottom: 77px;
+            bottom: 83px;
             width: 15px;
             border-left: 5px solid #800000 !important;
             border-right: 5px solid #800000 !important;
@@ -105,7 +113,7 @@ const AffidavitPrintPreview = () => {
             position: absolute;
             left: 20px;
             top: 114px;
-            bottom: 82px;
+            bottom: 83px;
             width: 15px;
             border-left: 5px solid #1a4a1a !important;
             border-right: 5px solid #1a4a1a !important;
@@ -164,10 +172,18 @@ const AffidavitPrintPreview = () => {
       <div className="affidavit-container shadow-lg">
         {/* Top Header */}
         <div className="maroon-header">
-          <img src="/fct-logo.png" alt="FCT Logo" style={{ height: '70px' }} />
+          {/* <img src="/fct-logo.png" alt="FCT Logo" style={{ height: '70px' }} /> */}
+          
+          <img src={`/assets/logos/${data.courtState?.replace(' ', '-').toLowerCase()}.png`} alt={`${data.courtState} Logo`} style={{ height: '70px', borderRadius: "50%" }} />
           <div className="text-center">
-            <h1 className="m-0" style={{ fontSize: '38px', letterSpacing: '2px' }}>HIGH COURT OF JUSTICE</h1>
-            <p className="m-0" style={{ fontSize: '14px', letterSpacing: '3px' }}>FEDERAL CAPITAL TERRITORY, ABUJA</p>
+            {/* <h1 className="m-0" style={{ fontSize: '38px', letterSpacing: '2px' }}>HIGH COURT OF JUSTICE</h1>
+            <p className="m-0" style={{ fontSize: '14px', letterSpacing: '3px' }}>FEDERAL CAPITAL TERRITORY, ABUJA</p> */}
+            <h1 className="m-0" style={{ fontSize: '38px', letterSpacing: '2px' }}>
+              {creatorData?.courtTitle?.toUpperCase() || 'HIGH COURT OF JUSTICE'}
+            </h1>
+            <p className="m-0" style={{ fontSize: '14px', letterSpacing: '3px' }}>
+              {`${creatorData?.courtTitleLine2?.toUpperCase()}, ${creatorData?.courtState?.toUpperCase()}`}
+            </p>
           </div>
           
           <img src="/coat-of-arms.png" alt="Coat of Arms" style={{ height: '70px', backgroundColor: "white", borderRadius: '50%' }} />
@@ -198,8 +214,8 @@ const AffidavitPrintPreview = () => {
 
           <div className="d-flex justify-content-end mt-2 mb-4">   
             <div className="stamp-box">
-              High Court of Justice<br/>
-              Federal Capital Territory
+              {creatorData?.courtTitle || 'High Court of Justice'}<br/>
+              {creatorData?.courtTitleLine2 || 'Federal Capital Territory'}
             </div>
           </div>
 
@@ -218,13 +234,26 @@ const AffidavitPrintPreview = () => {
               <li className="mb-3">THAT I DEPOSE TO THIS AFFIDAVIT IN GOOD FAITH CONSCIENTIOUSLY BELIEVING THAT SAME TO BE TRUE AND CORRECT IN ACCORDANCE WITH THE PROVISION OF THE OATH ACT.</li>
             </ol>
 
-            <div className="row mt-4 mb-5">
-              <div className="col-7">
-                <p className="mb-0">Sworn to at the High Court of Justice</p>
-                <p className="mb-0">Maitama, Federal Capital Territory this <span className="text-decoration-underline">{day}th</span></p>
-                <p>day of <span className="text-decoration-underline">{month}</span> {year}</p>
+            <div className="row mt-4 mb-5 align-items-center">
+              <div className="col-5">
+                <p className="mb-0">Sworn to at the {creatorData?.courtTitle || 'High Court of Justice'}</p>
+                <p className="mb-0">{`${creatorData?.courtTitleLine2}, ${creatorData?.courtState}`}</p>
+                {/* <p className="mb-0">Sworn to at the High Court of Justice</p>
+                <p className="mb-0">Maitama, Federal Capital Territory this <span className="text-decoration-underline">{day}th</span></p> */}
+                <p>This <span className="text-decoration-underline">{day}th</span> day of <span className="text-decoration-underline">{month}</span> {year}</p>
               </div>
-              <div className="col-5 text-center">
+              <div className="col-4 text-center">
+                <div className="border border-3 rounded border-dark p-2" style={{ fontSize: '11px', lineHeight: '1.2' }}>
+                  
+                  <label className="text-muted">{data.registrarTitle?.toUpperCase() || 'N/A'}</label>
+                  <p className="mb-1 fw-bold">{data.registrarName || 'N/A'} </p>
+                  {/* <small className="text-muted d-block mb-1 small fw-bold"></small> */}
+                  {data.registrarSignatureUrl && (
+                    <img src={data.registrarSignatureUrl} alt="Registrar Signature" style={{ height: '40px' }} />
+                  )}
+                </div>
+              </div>
+              <div className="col-3 text-center">
                 <div className="d-flex align-items-center justify-content-center" style={{ height: '80px' }}>
                   {data.fingerprintUrl ? (
                     <img src={data.fingerprintUrl} alt="Fingerprint" style={{ maxHeight: '70px' }} />
@@ -263,8 +292,8 @@ const AffidavitPrintPreview = () => {
                   </div>
                   <div className='col-8' style={{ padding: 0 }}>
                     <div className="text-center">
-                        <small style={{ fontSize: 14 }}>AFFIDAVIT CODE</small><br/>
-                        <strong>{data.affidavitIdentifier}</strong><br/>
+                        <small style={{ fontSize: 11 }}>AFFIDAVIT CODE</small><br/>
+                        <strong style={{ fontSize: 13 }}>{data.affidavitIdentifier}</strong><br/>
                       </div>
                   </div>
                 </div>
@@ -274,9 +303,11 @@ const AffidavitPrintPreview = () => {
                 <div className="row  align-items-center" >
                   <div className='col-4' style={{ padding: 0 }}>
                     <div className="mb-2">
-                      <img src="/signature-placeholder.png" alt="" style={{ height: '40px', opacity: 0.6 }} />
+                      {data.commissionerSignatureUrl && (
+                        <img src={data.commissionerSignatureUrl} alt="Commissioner Signature" style={{ height: '40px' }} />
+                      )}
                     </div>
-                    <strong>BEFORE ME</strong>
+                    <strong style={{ fontSize: 13 }}>BEFORE ME</strong>
                   </div>
                   <div className='col-8'>
                     <div className="border border-3 rounded border-dark p-2" style={{ fontSize: '11px', lineHeight: '1.2' }}>
@@ -290,7 +321,7 @@ const AffidavitPrintPreview = () => {
               </div>
 
               <div className="col-2 text-center position-relative" style={{ padding: 0 }}>
-                <img src="/court-seal.png" alt="Seal" className="seal-img" />
+                <img src={creatorData?.courtSealUrl} alt="Seal" className="seal-img" />
                 {/* <div className="position-absolute top-50 start-50 translate-middle text-danger fw-bold" style={{ fontSize: '12px', transform: 'rotate(-15deg)' }}>
                    SEAL<br/>FCT - ABUJA
                 </div> */}

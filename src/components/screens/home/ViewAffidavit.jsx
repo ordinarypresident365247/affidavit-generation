@@ -135,9 +135,13 @@ const ViewAffidavit = () => {
                 <label className="text-muted small">Full Name</label>
                 <p className="fw-bold border-bottom pb-1">{data.fullName}</p>
               </div>
-              <div className="col-md-6">
+              <div className="col-md-3">
                 <label className="text-muted small">Phone Number</label>
                 <p className="fw-bold border-bottom pb-1">{data.phoneNumber}</p>
+              </div>
+              <div className="col-md-3">
+                <label className="text-muted small">NIN</label>
+                <p className="fw-bold border-bottom pb-1">{data.nin || 'N/A'}</p>
               </div>
 
               <div className="col-12">
@@ -196,12 +200,21 @@ const ViewAffidavit = () => {
                 </p>
               </div>
 
-              <div className="col-md-12">
+              <div className="col-md-6">
                 <label className="text-muted small">Commissioner of Oaths</label>
                 <p className="fw-bold mb-0">{data.commissionerName}</p>
                 <small className="text-muted d-block mb-1">{data.commissionerTitle}</small>
                 {data.commissionerSignatureUrl && (
                   <img src={data.commissionerSignatureUrl} alt="Commissioner Signature" style={{ height: '40px' }} />
+                )}
+              </div>
+
+              <div className="col-md-6">
+                <label className="text-muted small">Registrar</label>
+                <p className="fw-bold mb-0">{data.registrarName || 'N/A'}</p>
+                <small className="text-muted d-block mb-1">{data.registrarTitle || 'N/A'}</small>
+                {data.registrarSignatureUrl && (
+                  <img src={data.registrarSignatureUrl} alt="Registrar Signature" style={{ height: '40px' }} />
                 )}
               </div>
             </div>

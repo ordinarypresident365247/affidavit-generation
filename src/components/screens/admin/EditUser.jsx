@@ -120,7 +120,7 @@ const EditUser = () => {
 
                                 <div className="mb-3">
                                     <label className="form-label">Account Type</label>
-                                    <select name="accountType" className="form-select" value={formData.accountType} onChange={handleChange} required>
+                                    <select name="accountType" className="form-select" value={formData.accountType} onChange={handleChange} required disabled={currentUser.accountType !== 'super-admin'}>
                                         <option value="court-account">Court Account</option>
                                         {currentUser.accountType === 'super-admin' && <option value="super-admin">Super Admin</option>}
                                         {currentUser.accountType === 'super-admin' && <option value="limited-admin">Limited Admin</option>}
