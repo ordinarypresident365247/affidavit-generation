@@ -2,84 +2,34 @@ import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/authContext';
 
-// import Login from './components/screens/auth/Login';
-// import ForgotPassword from './components/screens/auth/ForgotPassword';
-// import HomeTopNav from './components/screens/home/HomeTopNav';
-// import AdminTopNav from './components/screens/admin/AdminTopNav';
-// import Dashboard from './components/screens/home/Dashboard';
-// import CreateAffidavit from './components/screens/home/CreateAffidavit';
-// import AffidavitList from './components/screens/home/AffidavitList';
-// import ViewAffidavit from './components/screens/home/ViewAffidavit';
-// import AffidavitPrintPreview from './components/screens/home/AffidavitPrintPreview';
-// import AdminDashboard from './components/screens/admin/AdminDashboard';
+import Login from './components/screens/auth/Login';
+import ForgotPassword from './components/screens/auth/ForgotPassword';
+import HomeTopNav from './components/screens/home/HomeTopNav';
+import AdminTopNav from './components/screens/admin/AdminTopNav';
+import Dashboard from './components/screens/home/Dashboard';
+import CreateAffidavit from './components/screens/home/CreateAffidavit';
+import AffidavitList from './components/screens/home/AffidavitList';
+import ViewAffidavit from './components/screens/home/ViewAffidavit';
+import AffidavitPrintPreview from './components/screens/home/AffidavitPrintPreview';
+import AdminDashboard from './components/screens/admin/AdminDashboard';
 
-// import UsersList from './components/screens/admin/UsersList';
-// import AddUser from './components/screens/admin/AddUser';
-// import EditUser from './components/screens/admin/EditUser';
-// import AllAffidavitList from './components/screens/admin/AllAffidavitList';
+import UsersList from './components/screens/admin/UsersList';
+import AddUser from './components/screens/admin/AddUser';
+import EditUser from './components/screens/admin/EditUser';
+import AllAffidavitList from './components/screens/admin/AllAffidavitList';
 
-// import CommissionersList from './components/screens/home/CommissionersList';
-// import AddCommissioner from './components/screens/home/AddCommissioner';
-// import EditCommissioner from './components/screens/home/EditCommissioner';
+import CommissionersList from './components/screens/home/CommissionersList';
+import AddCommissioner from './components/screens/home/AddCommissioner';
+import EditCommissioner from './components/screens/home/EditCommissioner';
 
-// import PublicVerifyAffidavit from './components/screens/verification/PublicVerifyAffidavit';
-// import PublicVerificationPortal from './components/screens/verification/PublicVerificationPortal';
+import PublicVerifyAffidavit from './components/screens/verification/PublicVerifyAffidavit';
+import PublicVerificationPortal from './components/screens/verification/PublicVerificationPortal';
 
-// // import SetupAdmin from './components/screens/auth/SetupAdmin';
+// import SetupAdmin from './components/screens/auth/SetupAdmin';
 
-// import RegistrarsList from './components/screens/home/RegistrarsList';
-// import AddRegistrar from './components/screens/home/AddRegistrar';
-// import EditRegistrar from './components/screens/home/EditRegistrar'; // Assume this exists or will be created
-
-// Helper to handle ChunkLoadError (common during new deployments)
-const lazyWithRetry = (componentImport) =>
-  lazy(async () => {
-    const pageHasBeenRefreshed = JSON.parse(
-      window.sessionStorage.getItem('page-has-been-force-refreshed') || 'false'
-    );
-
-    try {
-      const component = await componentImport();
-      window.sessionStorage.setItem('page-has-been-force-refreshed', 'false');
-      return component;
-    } catch (error) {
-      if (!pageHasBeenRefreshed) {
-        window.sessionStorage.setItem('page-has-been-force-refreshed', 'true');
-        return window.location.reload();
-      }
-      throw error;
-    }
-  });
-
-// Lazy load components with retry logic
-const Login = lazyWithRetry(() => import('./components/screens/auth/Login'));
-const ForgotPassword = lazyWithRetry(() => import('./components/screens/auth/ForgotPassword'));
-const HomeTopNav = lazyWithRetry(() => import('./components/screens/home/HomeTopNav'));
-const AdminTopNav = lazyWithRetry(() => import('./components/screens/admin/AdminTopNav'));
-const Dashboard = lazyWithRetry(() => import('./components/screens/home/Dashboard'));
-const CreateAffidavit = lazyWithRetry(() => import('./components/screens/home/CreateAffidavit'));
-const AffidavitList = lazyWithRetry(() => import('./components/screens/home/AffidavitList'));
-const ViewAffidavit = lazyWithRetry(() => import('./components/screens/home/ViewAffidavit'));
-const AffidavitPrintPreview = lazyWithRetry(() => import('./components/screens/home/AffidavitPrintPreview'));
-const AdminDashboard = lazyWithRetry(() => import('./components/screens/admin/AdminDashboard'));
-
-const UsersList = lazyWithRetry(() => import('./components/screens/admin/UsersList'));
-const AddUser = lazyWithRetry(() => import('./components/screens/admin/AddUser'));
-const EditUser = lazyWithRetry(() => import('./components/screens/admin/EditUser'));
-const AllAffidavitList = lazyWithRetry(() => import('./components/screens/admin/AllAffidavitList'));
-
-const CommissionersList = lazyWithRetry(() => import('./components/screens/home/CommissionersList'));
-const AddCommissioner = lazyWithRetry(() => import('./components/screens/home/AddCommissioner'));
-const EditCommissioner = lazyWithRetry(() => import('./components/screens/home/EditCommissioner'));
-
-const PublicVerifyAffidavit = lazyWithRetry(() => import('./components/screens/verification/PublicVerifyAffidavit'));
-const PublicVerificationPortal = lazyWithRetry(() => import('./components/screens/verification/PublicVerificationPortal'));
-
-// const SetupAdmin = lazy(() => import('./components/screens/auth/SetupAdmin'));
-
-const RegistrarsList = lazyWithRetry(() => import('./components/screens/home/RegistrarsList'));
-const AddRegistrar = lazyWithRetry(() => import('./components/screens/home/AddRegistrar'));
-const EditRegistrar = lazyWithRetry(() => import('./components/screens/home/EditRegistrar'));
+import RegistrarsList from './components/screens/home/RegistrarsList';
+import AddRegistrar from './components/screens/home/AddRegistrar';
+import EditRegistrar from './components/screens/home/EditRegistrar'; // Assume this exists or will be created
 
 const LoadingFallback = () => (
   <div className="d-flex justify-content-center align-items-center vh-100">
@@ -106,24 +56,6 @@ const AdminRoute = ({ children }) => {
   const isAdmin = currentUser?.accountType === 'super-admin' || currentUser?.accountType === 'limited-admin';
   return isAdmin ? children : <Navigate to="/" />;
 };
-
-// Protect court routes: only court-account
-// const CourtRoute = ({ children }) => {
-//   const { currentUser, loading } = useAuth();
-//   if (loading) return <div className="text-center mt-5">Loading...</div>;
-  
-//   const isCourt = currentUser?.accountType === 'court-account';
-//   return isCourt ? children : <Navigate to="/" />;
-// };
-
-// Role-based dispatcher for the base "/" route
-// const RoleRedirect = () => {
-//   const { currentUser } = useAuth();
-//   if (currentUser?.accountType === 'super-admin' || currentUser?.accountType === 'limited-admin') {
-//     return <Navigate to="/admin" />;
-//   }
-//   return <Navigate to="/home" />;
-// };
 
 // Role-based dispatcher for the base "/" route
 const RoleRedirect = () => {
@@ -178,7 +110,7 @@ function App() {
     <AuthProvider>
       <Router>
         <div className="min-vh-100 bg-light">
-          <Suspense fallback={<LoadingFallback />}>
+          {/* <Suspense fallback={<LoadingFallback />}> */}
             <Routes>
               {/* Public Verification Route */}
               <Route path="/verify" element={<PublicVerificationPortal />} />
@@ -225,7 +157,7 @@ function App() {
               {/* Catch-all */}
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
-          </Suspense>
+          {/* </Suspense> */}
         </div>
       </Router>
     </AuthProvider>
