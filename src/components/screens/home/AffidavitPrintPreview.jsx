@@ -270,7 +270,7 @@ const AffidavitPrintPreview = () => {
                 <li className="mb-3">THAT I DEPOSE TO THIS AFFIDAVIT IN GOOD FAITH CONSCIENTIOUSLY BELIEVING THAT SAME TO BE TRUE AND CORRECT IN ACCORDANCE WITH THE PROVISION OF THE OATH ACT.</li>
               </ol>
 
-              <div className="row mt-4 mb-5 align-items-center">
+              <div className="row mt-4 mb-3 align-items-center">
                 <div className="col-4">
                   <p className="mb-0">Sworn to at the {creatorData?.courtTitle || 'High Court of Justice'}</p>
                   <p className="mb-0">{`${creatorData?.courtTitleLine2}, ${creatorData?.courtState}`}</p>
