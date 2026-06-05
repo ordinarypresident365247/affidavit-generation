@@ -9,7 +9,12 @@
 /coverage
 
 # production
+/.sixth
 /build
+/dist
+.sixth
+build
+dist
 
 # misc
 .DS_Store

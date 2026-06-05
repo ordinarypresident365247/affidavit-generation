@@ -51,7 +51,15 @@ const AffidavitList = () => {
   ];
 
   const handlePrint = (id) => {
-    const url = `/print/preview/${id}`;
+    // const url = `/print/preview/${id}`;
+    // const windowName = "AffidavitPrintPreview";
+    // const windowFeatures = "width=900,height=1000,scrollbars=yes,resizable=yes";
+    // window.open(url, windowName, windowFeatures);
+
+
+    const baseUrl = window.location.href.split('#')[0];
+    const url = `${baseUrl}#/print/preview/${id}`;
+    
     const windowName = "AffidavitPrintPreview";
     const windowFeatures = "width=900,height=1000,scrollbars=yes,resizable=yes";
     window.open(url, windowName, windowFeatures);

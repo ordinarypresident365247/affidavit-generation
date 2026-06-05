@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'; // BrowserRouter for Web, HashRouter for Desktop
 import { AuthProvider, useAuth } from './contexts/authContext';
 
 import Login from './components/screens/auth/Login';
@@ -178,3 +178,5 @@ export default App;
 // Domain name registered: https://affidavit.pro
 // E-mail: ordinarypresident365247@gmail.com
 // Paass: aliyu-ordinarypresident365247
+
+// "electron-dev": "concurrently \"npm start\" \"wait-on http://localhost:3000 && electron .\"",

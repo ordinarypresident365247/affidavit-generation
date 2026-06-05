@@ -28,7 +28,15 @@ const ViewAffidavit = () => {
 
   const handlePrintNavigation = () => {
     // navigate(`/${currentUser.accountType === 'court-account' ? 'home/print/preview' : 'admin/print/preview' }/${id}`);
-    const url = `/print/preview/${id}`;
+
+    // const url = `/print/preview/${id}`;
+    // const windowName = "AffidavitPrintPreview";
+    // const windowFeatures = "width=900,height=1000,scrollbars=yes,resizable=yes";
+    // window.open(url, windowName, windowFeatures);
+
+    const baseUrl = window.location.href.split('#')[0];
+    const url = `${baseUrl}#/print/preview/${id}`;
+    
     const windowName = "AffidavitPrintPreview";
     const windowFeatures = "width=900,height=1000,scrollbars=yes,resizable=yes";
     window.open(url, windowName, windowFeatures);
@@ -119,7 +127,7 @@ const ViewAffidavit = () => {
                 <label className="text-muted small d-block mb-2 text-uppercase fw-bold">Verification</label>
                 <div className="border rounded bg-white d-flex align-items-center justify-content-center shadow-sm p-1" style={{ height: '130px', width: '130px' }}>
                   <img 
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(window.location.origin + '/verify/' + data.affidavitIdentifier)}`} 
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(process.env.REACT_APP_BASE_URL + '/verify/' + data.affidavitIdentifier)}`} 
                     alt="Verification QR" 
                     className="img-fluid"
                   />
