@@ -37,10 +37,10 @@
 
     <!-- Fix for WebSdk/Fingerprint SDK in Electron -->
     <script>
-      if (typeof module === 'object') {
-        window.tempModule = module;
-        module = undefined;
-      }
+      // if (typeof module === 'object') {
+      //   window.tempModule = module;
+      //   module = undefined;
+      // }
     </script>
 
     <script src="%PUBLIC_URL%/scripts/es6-shim.js"></script>
@@ -48,9 +48,9 @@
     <script src="%PUBLIC_URL%/scripts/fingerprint.sdk.min.js"></script>
 
     <script>
-      if (window.tempModule) {
-        module = window.tempModule;
-      }
+      // if (window.tempModule) {
+      //   module = window.tempModule;
+      // }
     </script>
     <!-- End Fix -->
 

@@ -116,7 +116,7 @@ const AffidavitPrintPreview = () => {
               transform: translate(-50%, -50%);
               width: 600px;
               height: 600px;
-              background-image: url('${process.env.PUBLIC_URL}/favicon.png');
+              background-image: url('${process.env.PUBLIC_URL}/coat-of-arms.png');
               background-repeat: no-repeat;
               background-position: center;
               background-size: contain;
@@ -147,7 +147,7 @@ const AffidavitPrintPreview = () => {
               position: absolute;
               left: 20px;
               top: 114px;
-              bottom: 83px;
+              bottom: 72px;
               width: 15px;
               border-left: 5px solid #800000 !important;
               border-right: 5px solid #800000 !important;
@@ -157,7 +157,7 @@ const AffidavitPrintPreview = () => {
               position: absolute;
               left: 20px;
               top: 114px;
-              bottom: 83px;
+              bottom: 72px;
               width: 15px;
               border-left: 5px solid #1a4a1a !important;
               border-right: 5px solid #1a4a1a !important;
@@ -222,7 +222,8 @@ const AffidavitPrintPreview = () => {
               </p>
             </div>
             
-            <img src={`${process.env.PUBLIC_URL}/coat-of-arms.png`} alt="Coat of Arms" style={{ height: '70px', backgroundColor: "white", borderRadius: '50%' }} />
+            <img src={`/scale-of-justice.png`} alt="Coat of Arms" style={{ height: '70px', backgroundColor: "white", borderRadius: '50%' }} />
+            {/* <img src={`${process.env.PUBLIC_URL}/coat-of-arms.png`} alt="Coat of Arms" style={{ height: '70px', backgroundColor: "white", borderRadius: '50%' }} /> */}
           </div>
 
           <div className="side-bar"></div>
@@ -279,15 +280,16 @@ const AffidavitPrintPreview = () => {
                   <p>This <span className="text-decoration-underline">{day}th</span> day of <span className="text-decoration-underline">{month}</span> {year}</p>
                 </div>
                 <div className="col-4 text-center">
-                  <div className="border border-3 rounded border-dark p-2" style={{ fontSize: '11px', lineHeight: '1.2' }}>
+                  <img src="/logo.png" alt="Human Right Radio & TV" style={{ width: '100px' }} />
+                  <img src="/brekete-family-logo.png" alt="Human Right Radio & TV" style={{ width: '100px' }} />
+                  {/* <div className="border border-3 rounded border-dark p-2" style={{ fontSize: '11px', lineHeight: '1.2' }}>
                     
                     <label className="text-muted">{data.registrarTitle?.toUpperCase() || 'N/A'}</label>
                     <p className="mb-1 fw-bold">{data.registrarName || 'N/A'} </p>
-                    {/* <small className="text-muted d-block mb-1 small fw-bold"></small> */}
                     {data.registrarSignatureUrl && (
                       <img src={data.registrarSignatureUrl} alt="Registrar Signature" style={{ height: '40px' }} />
                     )}
-                  </div>
+                  </div> */}
                 </div>
                 <div className="col-4 text-center">
                   <div className="d-flex align-items-center justify-content-center" style={{ height: '80px' }}>

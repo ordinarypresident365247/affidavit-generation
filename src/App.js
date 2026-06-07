@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'; // BrowserRouter for Web, HashRouter for Desktop
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'; // BrowserRouter for Web, HashRouter for Desktop
 import { AuthProvider, useAuth } from './contexts/authContext';
 
 import Login from './components/screens/auth/Login';
